@@ -1,27 +1,27 @@
 export const colors = {
   // Primary Colors
-  primary: "#4CAF50", // Material Green
-  primaryLight: "#81C784",
-  primaryDark: "#388E3C",
+  primary: "#2196F3", // Material Blue
+  primaryLight: "#64B5F6",
+  primaryDark: "#1976D2",
 
   // Secondary Colors
-  secondary: "#2196F3", // Material Blue
-  secondaryLight: "#64B5F6",
-  secondaryDark: "#1976D2",
+  secondary: "#FF9800", // Material Orange
+  secondaryLight: "#FFB74D",
+  secondaryDark: "#F57C00",
 
   // Background Colors
-  background: "#121212", // Dark background
-  backgroundLight: "#1E1E1E",
-  backgroundDark: "#0A0A0A",
-  surface: "#1E1E1E",
-  surfaceLight: "#2C2C2C",
-  surfaceDark: "#1A1A1A",
+  background: "#FFFFFF", // Light background
+  backgroundLight: "#F5F5F5",
+  backgroundDark: "#E0E0E0",
+  surface: "#FFFFFF",
+  surfaceLight: "#F5F5F5",
+  surfaceDark: "#E0E0E0",
 
   // Text Colors
-  textPrimary: "#FFFFFF",
-  textSecondary: "#B3B3B3",
+  textPrimary: "#212121",
+  textSecondary: "#757575",
   textLight: "#FFFFFF",
-  textMuted: "#757575",
+  textMuted: "#9E9E9E",
 
   // Status Colors
   success: "#4CAF50", // Material Green
@@ -30,32 +30,32 @@ export const colors = {
   info: "#2196F3", // Material Blue
 
   // Message Colors
-  messageSent: "#4CAF50",
-  messageReceived: "#1E1E1E",
-  messageTime: "#B3B3B3",
+  messageSent: "#E3F2FD",
+  messageReceived: "#FFFFFF",
+  messageTime: "#757575",
 
   // Calendar Colors
-  calendarToday: "#4CAF50",
-  calendarSelected: "#388E3C",
-  calendarEvent: "#FFC107",
+  calendarToday: "#2196F3",
+  calendarSelected: "#E3F2FD",
+  calendarEvent: "#FF9800",
   calendarWeekend: "#F44336",
 
   // Border Colors
-  border: "#2C2C2C",
-  borderLight: "#1E1E1E",
-  divider: "#2C2C2C",
+  border: "#E0E0E0",
+  borderLight: "#F5F5F5",
+  divider: "#E0E0E0",
 
   // Overlay Colors
-  overlay: "rgba(0, 0, 0, 0.7)",
-  overlayLight: "rgba(0, 0, 0, 0.5)",
+  overlay: "rgba(0, 0, 0, 0.5)",
+  overlayLight: "rgba(0, 0, 0, 0.3)",
 
   // Gradient Colors
-  gradientStart: "#4CAF50",
-  gradientEnd: "#388E3C",
+  gradientStart: "#2196F3",
+  gradientEnd: "#1976D2",
 
   // Status Indicators
   online: "#4CAF50",
-  offline: "#B3B3B3",
+  offline: "#9E9E9E",
   away: "#FFC107",
 
   // Schedule Colors
@@ -64,17 +64,17 @@ export const colors = {
   scheduleCancelled: "#F44336",
 
   // Input Colors
-  inputBackground: "#1E1E1E",
-  inputBorder: "#2C2C2C",
-  inputText: "#FFFFFF",
-  inputPlaceholder: "#B3B3B3",
+  inputBackground: "#F5F5F5",
+  inputBorder: "#E0E0E0",
+  inputText: "#212121",
+  inputPlaceholder: "#9E9E9E",
 
   // Card Colors
-  cardBackground: "#1E1E1E",
-  cardBorder: "#2C2C2C",
-  cardShadow: "rgba(0, 0, 0, 0.2)",
+  cardBackground: "#FFFFFF",
+  cardBorder: "#E0E0E0",
+  cardShadow: "rgba(0, 0, 0, 0.1)",
 
   // Interactive Colors
-  ripple: "rgba(76, 175, 80, 0.1)",
-  highlight: "rgba(76, 175, 80, 0.2)",
+  ripple: "rgba(33, 150, 243, 0.1)",
+  highlight: "rgba(33, 150, 243, 0.2)",
 };
