@@ -10,35 +10,32 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.divider,
         },
         headerStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          color: colors.textPrimary,
+          fontWeight: "600",
         },
       }}>
       <Tabs.Screen
         name="home"
         options={{
           title: "Home",
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+            <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="schedule"
+        name="recents"
         options={{
           title: "Recents",
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+            <Ionicons name="chatbubbles" size={size} color={color} />
           ),
         }}
       />
@@ -46,9 +43,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="person" size={size} color={color} />
           ),
         }}
       />

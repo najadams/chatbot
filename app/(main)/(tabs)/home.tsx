@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Animated,
   Image,
   useColorScheme,
 } from "react-native";
@@ -39,14 +38,6 @@ export default function HomeScreen() {
   const user = useUser();
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const [welcome, setWelcome] = useState(true);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const contentSlideAnim = useRef(new Animated.Value(0)).current;
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const cardScaleAnim = useRef(new Animated.Value(1)).current;
 
   // Sample data
   const achievements = [
@@ -103,61 +94,6 @@ export default function HomeScreen() {
     },
   ];
 
-  // Add spring animation for cards
-  const springConfig = {
-    damping: 15,
-    mass: 1,
-    stiffness: 100,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.001,
-    restSpeedThreshold: 0.001,
-  };
-
-  useEffect(() => {
-    if (!welcome) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: -50,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(contentSlideAnim, {
-          toValue: -100,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [welcome]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setWelcome(false);
-    }, 5000);
-  }, [user]);
-
-  // Add hover animation for cards
-  const handleCardPressIn = () => {
-    Animated.spring(cardScaleAnim, {
-      toValue: 0.95,
-      ...springConfig,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handleCardPressOut = () => {
-    Animated.spring(cardScaleAnim, {
-      toValue: 1,
-      ...springConfig,
-      useNativeDriver: true,
-    }).start();
-  };
-
   const QuickAction = ({ icon, title, onPress }: QuickActionProps) => (
     <TouchableOpacity style={styles.quickAction} onPress={onPress}>
       <Ionicons name={icon} size={24} color={colors.primary} />
@@ -170,213 +106,105 @@ export default function HomeScreen() {
     description,
     icon,
   }: AchievementCardProps) => (
-    <Animated.View
-      style={[
-        styles.achievementCard,
-        {
-          backgroundColor: colorScheme === "dark" ? colors.surface : "#fff",
-          transform: [
-            {
-              translateY: scrollY.interpolate({
-                inputRange: [-1, 0, 1],
-                outputRange: [0, 0, 1],
-              }),
-            },
-            { scale: cardScaleAnim },
-          ],
-        },
-      ]}
-      onTouchStart={handleCardPressIn}
-      onTouchEnd={handleCardPressOut}>
-      <Animated.View
-        style={{
-          transform: [
-            {
-              rotate: rotateAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0deg", "360deg"],
-              }),
-            },
-          ],
-        }}>
-        <Ionicons name={icon} size={32} color={colors.primary} />
-      </Animated.View>
+    <View style={styles.achievementCard}>
+      <Ionicons name={icon} size={32} color={colors.primary} />
       <Text style={styles.achievementTitle}>{title}</Text>
       <Text style={styles.achievementDescription}>{description}</Text>
-    </Animated.View>
+    </View>
   );
 
   const ProfessorCard = ({ name, department, image }: ProfessorCardProps) => (
-    <Animated.View
-      style={[
-        styles.professorCard,
-        {
-          backgroundColor: colorScheme === "dark" ? colors.surface : "#fff",
-          transform: [
-            {
-              translateX: scrollY.interpolate({
-                inputRange: [-1, 0, 1],
-                outputRange: [0, 0, 1],
-              }),
-            },
-            { scale: cardScaleAnim },
-          ],
-        },
-      ]}
-      onTouchStart={handleCardPressIn}
-      onTouchEnd={handleCardPressOut}>
-      <Animated.Image
-        source={{ uri: image }}
-        style={[
-          styles.professorImage,
-          {
-            transform: [
-              {
-                scale: cardScaleAnim.interpolate({
-                  inputRange: [0.95, 1],
-                  outputRange: [1.05, 1],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
+    <View style={styles.professorCard}>
+      <Image source={{ uri: image }} style={styles.professorImage} />
       <Text style={styles.professorName}>{name}</Text>
       <Text style={styles.professorDepartment}>{department}</Text>
-    </Animated.View>
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        {/* <TouchableOpacity style={styles.addButton}>
-          <Ionicons name="add-circle" size={24} color="#007AFF" />
-        </TouchableOpacity> */}
-      </View>
-      <Animated.ScrollView
-        style={styles.content}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}>
-        <Animated.View
-          style={[
-            styles.header,
-            {
-              opacity: fadeAnim,
-              transform: [
-                { translateY: slideAnim },
-                {
-                  scale: scaleAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.95, 1],
-                  }),
-                },
-              ],
-            },
-          ]}>
+      <ScrollView style={styles.content}>
+        <View style={styles.header}>
           <Text style={styles.welcomeText}>Welcome to University</Text>
           <Text style={styles.subText}>Excellence in Education</Text>
-        </Animated.View>
+        </View>
 
-        <Animated.View
-          style={{
-            transform: [{ translateY: contentSlideAnim }],
-          }}>
-          <View style={styles.quickActions}>
-            <QuickAction
-              icon="school-outline"
-              title="Programs"
-              onPress={() => router.push("/(main)/tutor/1")}
-            />
-            <QuickAction
-              icon="people-outline"
-              title="Faculty"
-              onPress={() => router.push("/(main)/profile")}
-            />
-            <QuickAction
-              icon="calendar-outline"
-              title="Events"
-              onPress={() => router.push("/(main)/add-schedule")}
-            />
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Our Achievements</Text>
-            <View style={styles.achievementsGrid}>
-              {achievements.map((achievement, index) => (
-                <AchievementCard key={index} {...achievement} />
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Featured Professors</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.professorsScroll}>
-              {professors.map((professor, index) => (
-                <ProfessorCard key={index} {...professor} />
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Facilities</Text>
-            <View style={styles.facilitiesGrid}>
-              {facilities.map((facility, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.facilityCard,
-                    {
-                      backgroundColor:
-                        colorScheme === "dark" ? colors.surface : "#fff",
-                    },
-                  ]}>
-                  <Ionicons
-                    name={facility.icon}
-                    size={24}
-                    color={colors.primary}
-                  />
-                  <Text style={styles.facilityName}>{facility.name}</Text>
-                  <Text style={styles.facilityDescription}>
-                    {facility.description}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </Animated.View>
-      </Animated.ScrollView>
-      <Animated.View
-        style={[
-          styles.aiFab,
-          {
-            transform: [
-              {
-                scale: cardScaleAnim.interpolate({
-                  inputRange: [0.95, 1],
-                  outputRange: [1.1, 1],
-                }),
-              },
-            ],
-          },
-        ]}>
-        <TouchableOpacity
-          onPress={() => router.push("/ai-chat" as any)}
-          onPressIn={handleCardPressIn}
-          onPressOut={handleCardPressOut}>
-          <Ionicons
-            name="chatbubble-ellipses"
-            size={24}
-            color={colors.textLight}
+        <View style={styles.quickActions}>
+          <QuickAction
+            icon="school-outline"
+            title="Programs"
+            onPress={() => router.push("/(main)/tutor/1")}
           />
-        </TouchableOpacity>
-      </Animated.View>
+          <QuickAction
+            icon="people-outline"
+            title="Faculty"
+            onPress={() => router.push("/(main)/profile")}
+          />
+          <QuickAction
+            icon="calendar-outline"
+            title="Events"
+            onPress={() => router.push("/(main)/add-schedule")}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Our Achievements</Text>
+          <View style={styles.achievementsGrid}>
+            {achievements.map((achievement, index) => (
+              <AchievementCard key={index} {...achievement} />
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Featured Professors</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.professorsScroll}>
+            {professors.map((professor, index) => (
+              <ProfessorCard key={index} {...professor} />
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Facilities</Text>
+          <View style={styles.facilitiesGrid}>
+            {facilities.map((facility, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.facilityCard,
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? colors.surface : "#fff",
+                  },
+                ]}>
+                <Ionicons
+                  name={facility.icon}
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={styles.facilityName}>{facility.name}</Text>
+                <Text style={styles.facilityDescription}>
+                  {facility.description}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.aiFab}
+        onPress={() => router.push("/chat/new")}>
+        <Ionicons
+          name="chatbubble-ellipses"
+          size={24}
+          color={colors.textLight}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -390,21 +218,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     padding: 20,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.divider,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: colors.textPrimary,
-  },
-  addButton: {
-    padding: 8,
   },
   welcomeText: {
     fontSize: 32,
@@ -460,6 +277,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 15,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
     shadowColor: colors.cardShadow,
     shadowOffset: {
       width: 0,
@@ -468,8 +288,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
   },
   achievementTitle: {
     fontSize: 14,
@@ -493,6 +311,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 12,
     alignItems: "center",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
     shadowColor: colors.cardShadow,
     shadowOffset: {
       width: 0,
@@ -501,8 +322,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
   },
   professorImage: {
     width: 80,
@@ -535,6 +354,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 15,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
     shadowColor: colors.cardShadow,
     shadowOffset: {
       width: 0,
@@ -543,8 +365,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
   },
   facilityName: {
     fontSize: 14,
