@@ -1,0 +1,94 @@
+skejula-app/
+│
+│   ├── api/                  # API calls (Firebase, OpenAI, etc.)
+│   │   ├── firebase.ts        # Firebase config & services
+│   │   ├── auth.ts            # Authentication (Firebase Auth)
+│   │   ├── scheduler.ts       # AI schedule generation logic
+│   │   ├── calendar.ts        # Google Calendar integration
+│   │   ├── notifications.ts   # Push notifications setup
+│   │   ├── resources.ts       # Fetch books, videos, and articles
+│   │
+│   ├── components/            # Reusable UI components
+│   │   ├── Button.tsx         # Custom button component
+│   │   ├── ScheduleCard.tsx   # UI for showing schedules
+│   │   ├── ProgressBar.tsx    # User progress tracking UI
+│   │   ├── ResourceList.tsx   # List of recommended resources
+│   │
+│   ├── screens/               # Main app screens
+│   │   ├── HomeScreen.tsx     # Dashboard (overview of progress)
+│   │   ├── LoginScreen.tsx    # User login & authentication
+│   │   ├── RegisterScreen.tsx # User sign-up page
+│   │   ├── ScheduleScreen.tsx # User’s AI-generated schedule
+│   │   ├── CommunityScreen.tsx# Connect with learners
+│   │   ├── SettingsScreen.tsx # Profile & app settings
+│   │
+│   ├── navigation/            # Navigation system
+│   │   ├── AppNavigator.tsx   # Main app navigation
+│   │   ├── AuthNavigator.tsx  # Authentication flow
+│   │
+│   ├── context/               # Global state management
+│   │   ├── AuthContext.tsx    # User authentication state
+│   │   ├── ScheduleContext.tsx# Schedule state management
+│   │
+│   ├── utils/                 # Helper functions
+│   │   ├── formatDate.ts      # Date formatting
+│   │   ├── aiPrompts.ts       # AI prompt templates
+│   │   ├── constants.ts       # App-wide constants
+│   │
+│── functions/                 # Firebase Cloud Functions
+│   ├── index.ts               # Main entry for Firebase functions
+│   ├── aiScheduler.ts         # Cloud function for AI schedule generation
+│   ├── notification.ts        # Push notifications trigger
+│
+│── assets/                     # Images, icons, fonts
+│── App.tsx                      # Main entry point of the app
+│── package.json                 # Dependencies & scripts
+│── firebase.json                 # Firebase config
+│── metro.config.js               # Expo Metro bundler config
+
+
+
+
+# SAMPLE FIREBASE DOCUMENT SAMPLE
+/users/{userId}
+    ├── preferences/                 # User preferences
+    │   ├── availability             # Learning time per day/week
+    │   ├── goals                    # Learning goal & deadline
+    │   ├── learningStyle            # Visual, auditory, hands-on
+    │   ├── topics                   # Topics user wants to learn
+    │   ├── progressTracking         # Enable/disable progress tracking
+    │
+    ├── schedule/                     # AI-generated schedules
+    │   ├── {scheduleId}              # Unique schedule document
+    │   │   ├── startDate             # Start date of the schedule
+    │   │   ├── endDate               # End date of the schedule
+    │   │   ├── createdAt             # Timestamp when schedule was generated
+    │   │   ├── updatedAt             # Timestamp when last modified
+    │   │   ├── scheduleDetails       # Nested object for daily schedules
+    │   │   │   ├── Monday: {...}     # Lessons for each day
+    │   │   │   ├── Tuesday: {...}
+    │   │   │   ├── Wednesday: {...}
+    │   │   │   ├── ...
+    │   │   ├── progress              # User progress tracking
+    │   │   │   ├── completedLessons  # Lessons user has completed
+    │   │   │   ├── missedLessons     # Lessons missed & need rescheduling
+    │
+    ├── resources/                     # AI-recommended learning materials
+    │   ├── {resourceId}               # Unique resource document
+    │   │   ├── title                  # Title of the resource
+    │   │   ├── type                   # Video, book, article, etc.
+    │   │   ├── url                    # Link to the resource
+    │   │   ├── recommendedFor         # Topics this resource is relevant for
+    │   │   ├── addedAt                # Timestamp
+
+
+
+
+1️⃣ Set up Firestore collections & documents in the app
+2️⃣ Create AI-powered scheduling API in Firebase Functions
+3️⃣ Build a function to dynamically update schedules based on user progress
+
+
+Test Firebase Firestore integration
+🎯 Connect Firebase Authentication (for user accounts)
+🎯 Integrate AI-generated scheduling logic
