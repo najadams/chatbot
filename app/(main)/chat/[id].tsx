@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,15 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/app/theme/colors";
+import {
+  sendMessageToRasa,
+  startNewConversation,
+} from "@/app/services/rasaService";
 
 interface Message {
   id: string;
@@ -26,10 +30,16 @@ export default function ChatScreen() {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  const sendMessage = () => {
-    if (!message.trim()) return;
+  useEffect(() => {
+    // Initialize conversation with Rasa
+    startNewConversation(id as string).catch(console.error);
+  }, [id]);
+
+  const sendMessage = async () => {
+    if (!message.trim() || isLoading) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -40,19 +50,33 @@ export default function ChatScreen() {
 
     setMessages((prev) => [...prev, newMessage]);
     setMessage("");
+    setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm here to help you with your university-related questions. What would you like to know?",
+    try {
+      const responses = await sendMessageToRasa(message.trim(), id as string);
+
+      responses.forEach((response) => {
+        const aiResponse: Message = {
+          id: (Date.now() + Math.random()).toString(),
+          text: response.text,
+          sender: "ai",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, aiResponse]);
+      });
+    } catch (error) {
+      // Handle error by showing an error message
+      const errorMessage: Message = {
+        id: (Date.now() + Math.random()).toString(),
+        text: "Sorry, I'm having trouble connecting to the server. Please try again later.",
         sender: "ai",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
-
-    flatListRef.current?.scrollToEnd({ animated: true });
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }
   };
 
   const renderMessage = ({ item }: { item: Message }) => (
@@ -118,20 +142,27 @@ export default function ChatScreen() {
           placeholder="Type your message..."
           placeholderTextColor={colors.textSecondary}
           multiline
+          editable={!isLoading}
         />
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            !message.trim() && styles.sendButtonDisabled,
-          ]}
-          onPress={sendMessage}
-          disabled={!message.trim()}>
-          <Ionicons
-            name="send"
-            size={24}
-            color={message.trim() ? colors.textLight : colors.textSecondary}
-          />
-        </TouchableOpacity>
+        {isLoading ? (
+          <View style={styles.sendButton}>
+            <ActivityIndicator color={colors.textLight} />
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              !message.trim() && styles.sendButtonDisabled,
+            ]}
+            onPress={sendMessage}
+            disabled={!message.trim()}>
+            <Ionicons
+              name="send"
+              size={24}
+              color={message.trim() ? colors.textLight : colors.textSecondary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
