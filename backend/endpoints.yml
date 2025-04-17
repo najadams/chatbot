@@ -17,13 +17,15 @@
 # By default the conversations are stored in memory.
 # https://rasa.com/docs/rasa/tracker-stores
 
-#tracker_store:
-#    type: redis
-#    url: <host of the redis instance, e.g. localhost>
-#    port: <port of your redis instance, usually 6379>
-#    db: <number of your database within redis, e.g. 0>
-#    password: <password used for authentication>
-#    use_ssl: <whether or not the communication is encrypted, default false>
+tracker_store:
+  type: SQL
+  dialect: "postgresql"
+  url: "localhost"         # or your remote DB host
+  db: "rasa_db"            # database name
+  username: "rasa_user"
+  password: "your_password"
+  login_db: "postgres"     # default database to connect initially
+
 
 #tracker_store:
 #    type: mongod
