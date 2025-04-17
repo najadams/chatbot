@@ -6,6 +6,12 @@ fire*
 # dependencies
 node_modules/
 
+
+# backend
+backend/venv/
+backend/env/
+backend/rasa
+
 # Expo
 .expo/
 dist/
