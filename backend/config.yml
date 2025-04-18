@@ -48,3 +48,10 @@ policies:
 #     max_history: 5
 #     epochs: 100
 #     constrain_similarities: true
+
+# MongoDB Tracker Store Configuration
+tracker_store:
+  type: mongodb
+  url: mongodb://localhost:27017/rasa_db
+  db: rasa_db
+  collection: conversations

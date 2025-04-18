@@ -10,7 +10,7 @@ node_modules/
 # backend
 backend/venv/
 backend/env/
-backend/rasa
+backend/__pycache__/
 
 # Expo
 .expo/

@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Image,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,40 +18,52 @@ interface ChatTopic {
   lastMessage: string;
   timestamp: string;
   unreadCount: number;
+  date: string;
+  messages: any[];
 }
 
 export default function RecentsScreen() {
   const router = useRouter();
+  const [recentChats, setRecentChats] = useState<ChatTopic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Sample data for recent chats
-  const recentChats: ChatTopic[] = [
-    {
-      id: "1",
-      title: "Course Registration Help",
-      lastMessage: "I can help you with the registration process...",
-      timestamp: "2:30 PM",
-      unreadCount: 0,
-    },
-    {
-      id: "2",
-      title: "Library Resources",
-      lastMessage: "Here are the available online resources...",
-      timestamp: "Yesterday",
-      unreadCount: 2,
-    },
-    {
-      id: "3",
-      title: "Campus Navigation",
-      lastMessage: "The main building is located at...",
-      timestamp: "2 days ago",
-      unreadCount: 0,
-    },
-  ];
+  const fetchRecentChats = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:8000/recent-conversations"
+      );
+      const data = await response.json();
+      setRecentChats(data);
+    } catch (error) {
+      console.error("Error fetching recent chats:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentChats();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchRecentChats();
+  };
 
   const renderChatItem = ({ item }: { item: ChatTopic }) => (
     <TouchableOpacity
       style={styles.chatItem}
-      onPress={() => router.push(`/chat/${item.id}`)}>
+      onPress={() =>
+        router.push({
+          pathname: "/chat/[id]" as const,
+          params: { 
+            id: item.id,
+            messages: JSON.stringify(item.messages) 
+          },
+        })
+      }>
       <View style={styles.avatarContainer}>
         <Ionicons name="chatbubble-ellipses" size={24} color={colors.primary} />
       </View>
@@ -71,6 +84,31 @@ export default function RecentsScreen() {
     </TouchableOpacity>
   );
 
+  const renderSectionHeader = ({
+    section: { date },
+  }: {
+    section: { date: string };
+  }) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionHeaderText}>
+        {new Date(date).toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
+      </Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -87,6 +125,13 @@ export default function RecentsScreen() {
         renderItem={renderChatItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+          />
+        }
       />
     </View>
   );
@@ -95,6 +140,12 @@ export default function RecentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: colors.background,
   },
   header: {
@@ -182,4 +233,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-}); 
+  sectionHeader: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: colors.background,
+  },
+  sectionHeaderText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textSecondary,
+  },
+});
