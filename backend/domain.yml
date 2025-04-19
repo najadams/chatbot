@@ -8,6 +8,17 @@ intents:
   - mood_great
   - mood_unhappy
   - bot_challenge
+  - emergency_help
+  - ask_placements
+  - ask_accommodation
+  - ask_faculty
+  - ask_scholarships
+  - ask_contact
+  - ask_deadlines
+  - ask_fees
+  - ask_courses
+  - ask_admission
+  - thanks
 
 responses:
   utter_greet:
@@ -27,7 +38,10 @@ responses:
   - text: "Bye"
 
   utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+  - text: "I am a bot, powered by Ibrahim."
+   
+  utter_admission_info:
+    - text: "Our admission process requires: 1) Filled application form, 2) Academic transcripts, 3) Entrance exam (if applicable). Would you like details for a specific program?"
 
 session_config:
   session_expiration_time: 60

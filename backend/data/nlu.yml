@@ -3,89 +3,163 @@ version: "3.1"
 nlu:
 - intent: greet
   examples: |
-    - hey
-    - hello
-    - hi
-    - hello there
-    - good morning
-    - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
+    - Hi
+    - Hello
+    - Hey there
+    - Good morning
+    - Good afternoon
+    - Good evening
+    - Greetings
+    - What's up?
+    - Howdy
 
 - intent: goodbye
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+    - Bye
+    - Goodbye
+    - See you later
+    - Have a nice day
+    - Take care
+    - Bye for now
+    - Catch you later
+    - I'm leaving
 
 - intent: affirm
   examples: |
-    - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
-    - correct
+    - Yes
+    - Yeah
+    - Sure
+    - Absolutely
+    - Correct
+    - That's right
+    - Of course
+    - Definitely
+    - I agree
 
 - intent: deny
   examples: |
-    - no
-    - n
-    - never
+    - No
+    - Nope
+    - Not really
     - I don't think so
-    - don't like that
-    - no way
-    - not really
+    - Negative
+    - Never
+    - Not interested
+    - No thanks
 
-- intent: mood_great
+- intent: thanks
   examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
+    - Thanks
+    - Thank you
+    - Appreciate it
+    - Thanks a lot
+    - Thank you so much
+    - Grateful
+    - Cheers
 
-- intent: mood_unhappy
+- intent: ask_admission
   examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
+    - How do I apply for admission?
+    - What are the admission requirements?
+    - How can I get into this university?
+    - What documents are needed for admission?
+    - Is there an entrance exam?
+    - How to enroll in a course?
+    - What's the admission process?
+    - Can international students apply?
 
-- intent: bot_challenge
+- intent: ask_courses
   examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - What courses do you offer?
+    - List of undergraduate programs
+    - Available master's degrees
+    - PhD programs
+    - Diploma courses
+    - Short-term certifications
+    - Online courses
+    - Engineering programs
+    - Business degrees
+
+- intent: ask_fees
+  examples: |
+    - What's the tuition fee?
+    - How much does a semester cost?
+    - Fee structure for MBA
+    - Are there scholarships?
+    - Payment options
+    - Is there a discount for early payment?
+    - International student fees
+    - Additional charges
+
+- intent: ask_deadlines
+  examples: |
+    - When is the application deadline?
+    - Last date to apply
+    - Admission closing date
+    - Deadline for scholarships
+    - When do classes start?
+    - Semester start date
+    - Late submission policy
+
+- intent: ask_contact
+  examples: |
+    - How can I contact the university?
+    - Email address
+    - Phone number
+    - Office location
+    - Where is the campus?
+    - Admission office contact
+    - Live chat support
+    - Mailing address
+
+- intent: ask_scholarships
+  examples: |
+    - Do you offer scholarships?
+    - How to apply for financial aid?
+    - Merit-based scholarships
+    - Need-based grants
+    - International student funding
+    - Full-ride scholarships
+    - Scholarship deadlines
+    - Eligibility criteria
+
+- intent: ask_faculty
+  examples: |
+    - Who are the professors?
+    - Faculty list
+    - Department heads
+    - Research supervisors
+    - Best teachers in [subject]
+    - Faculty qualifications
+    - Visiting professors
+
+- intent: ask_accommodation
+  examples: |
+    - Is hostel available?
+    - On-campus housing
+    - Dormitory fees
+    - Off-campus housing options
+    - How to book a room?
+    - Student apartments
+    - Accommodation for international students
+
+- intent: ask_placements
+  examples: |
+    - What's the placement rate?
+    - Top recruiters
+    - Average salary offered
+    - Internship opportunities
+    - Career support services
+    - Job fairs
+    - Alumni network
+
+- intent: emergency_help
+  examples: |
+    - I need urgent help
+    - Emergency contact
+    - Who to call in crisis?
+    - Report an issue
+    - Security office
+    - Medical emergency
+    - Harassment complaint
+    - IT support down
