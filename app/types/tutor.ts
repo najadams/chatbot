@@ -9,3 +9,5 @@ export interface Tutor {
   hourlyRate?: number;
   availability?: string[];
 }
+
+export default Tutor;

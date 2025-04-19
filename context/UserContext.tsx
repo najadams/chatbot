@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 export type UserContextType = {
+  id: string;
   name: string;
   email: string;
   phone: string;

@@ -20,6 +20,7 @@ export const colors = {
   // Text Colors
   textPrimary: "#212121",
   textSecondary: "#757575",
+  textTertiary: "#C7C7CC",
   textLight: "#FFFFFF",
   textMuted: "#9E9E9E",
 
@@ -43,11 +44,15 @@ export const colors = {
   // Border Colors
   border: "#E0E0E0",
   borderLight: "#F5F5F5",
+  borderDark: "#8E8E93",
   divider: "#E0E0E0",
+  dividerLight: "#F5F5F5",
+  dividerDark: "#C7C7CC",
 
   // Overlay Colors
   overlay: "rgba(0, 0, 0, 0.5)",
   overlayLight: "rgba(0, 0, 0, 0.3)",
+  overlayDark: "rgba(0, 0, 0, 0.7)",
 
   // Gradient Colors
   gradientStart: "#2196F3",

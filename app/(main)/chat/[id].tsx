@@ -1,82 +1,165 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
+  FlatList,
   TextInput,
   TouchableOpacity,
-  FlatList,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/app/theme/colors";
-import {
-  sendMessageToRasa,
-  startNewConversation,
-} from "@/app/services/rasaService";
+import { useUser } from "@/context/UserContext";
 
 interface Message {
-  id: string;
-  text: string;
+  message_id: string;
   sender: "user" | "ai";
-  timestamp: Date;
+  content: string;
+  timestamp: string;
+  status: string;
+  metadata: {
+    input_type?: string;
+    device?: string;
+    response_time_ms?: number;
+    confidence_score?: number;
+  };
+}
+
+interface Conversation {
+  conversation_id: string;
+  started_at: string;
+  updated_at: string;
+  participants: {
+    user: {
+      user_id: string;
+      username: string;
+      display_name: string;
+    };
+    ai: {
+      ai_id: string;
+      name: string;
+      version: string;
+    };
+  };
+  metadata: {
+    platform: string;
+    language: string;
+    session_id: string;
+    context: {
+      topic: string;
+      user_timezone: string;
+    };
+  };
+  messages: Message[];
+  status: string;
+  summary: {
+    total_messages: number;
+    last_message_id: string;
+    last_message_timestamp: string;
+  };
 }
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const user = useUser();
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const flatListRef = useRef<FlatList>(null);
+  const [sending, setSending] = useState(false);
+
+  const fetchConversation = useCallback(async () => {
+    try {
+      setError(null);
+      const response = await fetch(`http://localhost:8000/chat/${id}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          const newResponse = await fetch("http://localhost:8000/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: user?.id || "anonymous",
+              username: user?.name || "User",
+              display_name: user?.name || "User",
+              message: "Hello",
+              platform: "mobile",
+              language: "en-US",
+              topic: "general",
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }),
+          });
+
+          if (!newResponse.ok) {
+            throw new Error("Failed to create conversation");
+          }
+
+          const data = await newResponse.json();
+          setConversation(data);
+        } else {
+          throw new Error("Failed to fetch conversation");
+        }
+      } else {
+        const data = await response.json();
+        setConversation(data);
+      }
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+      setError("Failed to load conversation. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, user]);
 
   useEffect(() => {
-    // Initialize conversation with Rasa
-    startNewConversation(id as string).catch(console.error);
-  }, [id]);
+    console.log(id, "id in the id.tsx file");
+    fetchConversation();
+  }, [fetchConversation]);
 
   const sendMessage = async () => {
-    if (!message.trim() || isLoading) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: message.trim(),
-      sender: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setMessage("");
-    setIsLoading(true);
+    if (!message.trim() || !conversation) return;
 
     try {
-      const responses = await sendMessageToRasa(message.trim(), id as string);
-
-      responses.forEach((response) => {
-        const aiResponse: Message = {
-          id: (Date.now() + Math.random()).toString(),
-          text: response.text,
-          sender: "ai",
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, aiResponse]);
+      setSending(true);
+      const response = await fetch(`http://localhost:8000/chat/${id}/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: "user",
+          content: message,
+          metadata: {
+            input_type: "text",
+            device: Platform.OS,
+          },
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      setMessage("");
+      fetchConversation();
     } catch (error) {
-      // Handle error by showing an error message
-      const errorMessage: Message = {
-        id: (Date.now() + Math.random()).toString(),
-        text: "Sorry, I'm having trouble connecting to the server. Please try again later.",
-        sender: "ai",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      console.error("Error sending message:", error);
+      setError("Failed to send message. Please try again.");
     } finally {
-      setIsLoading(false);
-      flatListRef.current?.scrollToEnd({ animated: true });
+      setSending(false);
     }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const renderMessage = ({ item }: { item: Message }) => (
@@ -90,29 +173,37 @@ export default function ChatScreen() {
           styles.messageBubble,
           item.sender === "user" ? styles.userBubble : styles.aiBubble,
         ]}>
-        <Text
-          style={[
-            styles.messageText,
-            item.sender === "user"
-              ? styles.userMessageText
-              : styles.aiMessageText,
-          ]}>
-          {item.text}
-        </Text>
+        <Text style={styles.messageText}>{item.content}</Text>
+        <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
       </View>
-      <Text style={styles.timestamp}>
-        {item.timestamp.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </Text>
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={fetchConversation}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}>
       <View style={styles.header}>
         <TouchableOpacity
@@ -120,18 +211,23 @@ export default function ChatScreen() {
           onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>AI Assistant</Text>
+        <View style={styles.headerInfo}>
+          <Text style={styles.headerTitle}>
+            {conversation?.participants.user.display_name} &{" "}
+            {conversation?.participants.ai.name}
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            {conversation?.metadata.context.topic}
+          </Text>
+        </View>
       </View>
 
       <FlatList
-        ref={flatListRef}
-        data={messages}
+        data={conversation?.messages}
         renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messagesList}
-        onContentSizeChange={() =>
-          flatListRef.current?.scrollToEnd({ animated: true })
-        }
+        keyExtractor={(item) => item.message_id}
+        contentContainerStyle={styles.messagesContainer}
+        inverted
       />
 
       <View style={styles.inputContainer}>
@@ -139,30 +235,23 @@ export default function ChatScreen() {
           style={styles.input}
           value={message}
           onChangeText={setMessage}
-          placeholder="Type your message..."
+          placeholder="Type a message..."
           placeholderTextColor={colors.textSecondary}
           multiline
-          editable={!isLoading}
         />
-        {isLoading ? (
-          <View style={styles.sendButton}>
-            <ActivityIndicator color={colors.textLight} />
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              !message.trim() && styles.sendButtonDisabled,
-            ]}
-            onPress={sendMessage}
-            disabled={!message.trim()}>
-            <Ionicons
-              name="send"
-              size={24}
-              color={message.trim() ? colors.textLight : colors.textSecondary}
-            />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={[
+            styles.sendButton,
+            !message.trim() && styles.sendButtonDisabled,
+          ]}
+          onPress={sendMessage}
+          disabled={!message.trim() || sending}>
+          {sending ? (
+            <ActivityIndicator size="small" color={colors.textLight} />
+          ) : (
+            <Ionicons name="send" size={24} color={colors.textLight} />
+          )}
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
@@ -172,6 +261,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.background,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: colors.background,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: colors.textLight,
+    fontSize: 16,
+    fontWeight: "600",
   },
   header: {
     flexDirection: "row",
@@ -184,25 +303,33 @@ const styles = StyleSheet.create({
   backButton: {
     marginRight: 16,
   },
+  headerInfo: {
+    flex: 1,
+  },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: colors.textPrimary,
   },
-  messagesList: {
+  headerSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  messagesContainer: {
     padding: 16,
   },
   messageContainer: {
     marginBottom: 16,
-    maxWidth: "80%",
   },
   userMessage: {
-    alignSelf: "flex-end",
+    alignItems: "flex-end",
   },
   aiMessage: {
-    alignSelf: "flex-start",
+    alignItems: "flex-start",
   },
   messageBubble: {
+    maxWidth: "80%",
     padding: 12,
     borderRadius: 16,
   },
@@ -211,16 +338,13 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   aiBubble: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: colors.surface,
     borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   messageText: {
     fontSize: 16,
-  },
-  userMessageText: {
-    color: colors.textLight,
-  },
-  aiMessageText: {
     color: colors.textPrimary,
   },
   timestamp: {
@@ -231,11 +355,11 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.divider,
-    alignItems: "flex-end",
   },
   input: {
     flex: 1,
@@ -244,18 +368,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginRight: 8,
-    maxHeight: 100,
+    fontSize: 16,
     color: colors.textPrimary,
+    maxHeight: 100,
   },
   sendButton: {
+    backgroundColor: colors.primary,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
   sendButtonDisabled: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: colors.textTertiary,
   },
 });

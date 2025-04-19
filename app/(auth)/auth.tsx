@@ -86,6 +86,7 @@ const AuthScreen = () => {
 
         // Update local user state
         setUser({
+          id: user.uid,
           name: values.name || "",
           email: values.email,
           phone: values.phone || "",
@@ -107,6 +108,7 @@ const AuthScreen = () => {
 
         // Update local user state
         setUser({
+          id: user.uid,
           name: user.displayName || "User",
           email: user.email || "",
           role: "User",

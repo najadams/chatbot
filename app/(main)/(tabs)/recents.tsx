@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,79 +7,195 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors } from "@/app/theme/colors";
+import { useUser } from "@/context/UserContext";
 
 interface ChatTopic {
-  id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: string;
-  unreadCount: number;
-  date: string;
-  messages: any[];
+  conversation_id: string;
+  started_at: string;
+  updated_at: string;
+  participants: {
+    user: {
+      user_id: string;
+      username: string;
+      display_name: string;
+    };
+    ai: {
+      ai_id: string;
+      name: string;
+      version: string;
+    };
+  };
+  metadata: {
+    platform: string;
+    language: string;
+    session_id: string;
+    context: {
+      topic: string;
+      user_timezone: string;
+    };
+  };
+  status: string;
+  summary: {
+    total_messages: number;
+    last_message_id: string;
+    last_message_timestamp: string;
+  };
+  last_message: string;
+  last_message_timestamp: string;
 }
+
+interface PaginationInfo {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+}
+
+const DEFAULT_PAGE_SIZE = 20;
 
 export default function RecentsScreen() {
   const router = useRouter();
   const [recentChats, setRecentChats] = useState<ChatTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    per_page: DEFAULT_PAGE_SIZE,
+    total: 0,
+    total_pages: 0,
+  });
 
-  const fetchRecentChats = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:8000/recent-conversations"
-      );
-      const data = await response.json();
-      setRecentChats(data);
-    } catch (error) {
-      console.error("Error fetching recent chats:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const user = useUser();
+
+  const fetchRecentChats = useCallback(
+    async (page: number = 1) => {
+      try {
+        setError(null);
+        if (!user?.id) {
+          console.log("No user ID available");
+          setRecentChats([]);
+          setLoading(false);
+          return;
+        }
+
+        console.log(`Fetching chats for user: ${user.id}, page: ${page}`);
+        const response = await fetch(
+          `http://localhost:8000/recent-chats?page=${page}&per_page=${DEFAULT_PAGE_SIZE}&user_id=${user.id}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Received chats:", data);
+
+        if (!data.conversations) {
+          throw new Error("No conversations data in response");
+        }
+
+        // Handle case where pagination data might be missing
+        const paginationData = data.pagination || {
+          page: page,
+          per_page: DEFAULT_PAGE_SIZE,
+          total: data.conversations?.length || 0,
+          total_pages: 1,
+        };
+
+        setRecentChats((prev) =>
+          page === 1 ? data.conversations : [...prev, ...data.conversations]
+        );
+        setPagination(paginationData);
+      } catch (error) {
+        console.error("Error fetching recent chats:", error);
+        setError("Failed to load conversations. Please try again.");
+        Alert.alert(
+          "Error",
+          "Failed to load conversations. Please try again.",
+          [{ text: "OK" }]
+        );
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [user]
+  );
 
   useEffect(() => {
-    fetchRecentChats();
-  }, []);
+    if (user?.id) {
+      fetchRecentChats();
+    }
+  }, [fetchRecentChats, user]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchRecentChats();
+    fetchRecentChats(1);
+  };
+
+  const loadMore = () => {
+    if (!loading && pagination.page < pagination.total_pages) {
+      fetchRecentChats(pagination.page + 1);
+    }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else if (days === 1) {
+      return "Yesterday";
+    } else if (days < 7) {
+      return date.toLocaleDateString([], { weekday: "long" });
+    } else {
+      return date.toLocaleDateString([], { month: "short", day: "numeric" });
+    }
   };
 
   const renderChatItem = ({ item }: { item: ChatTopic }) => (
     <TouchableOpacity
       style={styles.chatItem}
-      onPress={() =>
+      onPress={() => {
+        console.log(item.conversation_id);
         router.push({
           pathname: "/chat/[id]" as const,
-          params: { 
-            id: item.id,
-            messages: JSON.stringify(item.messages) 
-          },
-        })
-      }>
+          params: { id: item.conversation_id },
+        });
+      }}>
       <View style={styles.avatarContainer}>
         <Ionicons name="chatbubble-ellipses" size={24} color={colors.primary} />
       </View>
       <View style={styles.chatInfo}>
         <View style={styles.chatHeader}>
-          <Text style={styles.chatTitle}>{item.title}</Text>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
+          <Text style={styles.chatTitle}>
+            {item.participants.user.display_name} & {item.participants.ai.name}
+          </Text>
+          <Text style={styles.timestamp}>
+            {formatTimestamp(item.last_message_timestamp)}
+          </Text>
         </View>
         <Text style={styles.lastMessage} numberOfLines={1}>
-          {item.lastMessage}
+          {item.last_message}
         </Text>
-        {item.unreadCount > 0 && (
-          <View style={styles.unreadBadge}>
-            <Text style={styles.unreadCount}>{item.unreadCount}</Text>
-          </View>
-        )}
+        <View style={styles.metadataContainer}>
+          <Text style={styles.metadataText}>
+            {item.metadata.context.topic} • {item.summary.total_messages}{" "}
+            messages
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -101,7 +217,7 @@ export default function RecentsScreen() {
     </View>
   );
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -120,10 +236,16 @@ export default function RecentsScreen() {
         </TouchableOpacity>
       </View>
 
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
       <FlatList
         data={recentChats}
         renderItem={renderChatItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.conversation_id}
         contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl
@@ -131,6 +253,16 @@ export default function RecentsScreen() {
             onRefresh={onRefresh}
             colors={[colors.primary]}
           />
+        }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          loading && refreshing ? (
+            <ActivityIndicator
+              style={styles.footerLoader}
+              color={colors.primary}
+            />
+          ) : null
         }
       />
     </View>
@@ -215,23 +347,15 @@ const styles = StyleSheet.create({
   lastMessage: {
     fontSize: 14,
     color: colors.textSecondary,
+    marginBottom: 4,
   },
-  unreadBadge: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    minWidth: 24,
-    height: 24,
-    justifyContent: "center",
+  metadataContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 6,
   },
-  unreadCount: {
-    color: colors.textLight,
+  metadataText: {
     fontSize: 12,
-    fontWeight: "600",
+    color: colors.textTertiary,
   },
   sectionHeader: {
     paddingVertical: 8,
@@ -242,5 +366,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: colors.textSecondary,
+  },
+  errorContainer: {
+    padding: 16,
+    backgroundColor: colors.error,
+    margin: 16,
+    borderRadius: 8,
+  },
+  errorText: {
+    color: colors.textLight,
+    textAlign: "center",
+  },
+  footerLoader: {
+    paddingVertical: 16,
   },
 });
