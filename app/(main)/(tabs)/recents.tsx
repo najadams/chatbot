@@ -84,7 +84,6 @@ export default function RecentsScreen() {
           return;
         }
 
-        console.log(`Fetching chats for user: ${user.id}, page: ${page}`);
         const response = await fetch(
           `http://localhost:8000/recent-chats?page=${page}&per_page=${DEFAULT_PAGE_SIZE}&user_id=${user.id}`
         );
@@ -129,6 +128,7 @@ export default function RecentsScreen() {
   );
 
   useEffect(() => {
+    // console.log(user.name)
     if (user?.id) {
       fetchRecentChats();
     }
@@ -169,7 +169,6 @@ export default function RecentsScreen() {
     <TouchableOpacity
       style={styles.chatItem}
       onPress={() => {
-        console.log(item.conversation_id);
         router.push({
           pathname: "/chat/[id]" as const,
           params: { id: item.conversation_id },
@@ -192,7 +191,8 @@ export default function RecentsScreen() {
         </Text>
         <View style={styles.metadataContainer}>
           <Text style={styles.metadataText}>
-            {item.metadata.context.topic} • {item.summary.total_messages}{" "}
+            {item.metadata.context.topic} •
+            {/* {item.summary.total_messages}{" "} */}
             messages
           </Text>
         </View>

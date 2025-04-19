@@ -34,7 +34,6 @@ def get_conversations_list():
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 20))
         user_id = request.args.get('user_id')
-        user_id='user-7890'
         if not user_id:
             logger.warning("No user_id provided")
             return jsonify({

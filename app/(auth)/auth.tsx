@@ -79,22 +79,22 @@ const AuthScreen = () => {
           email: values.email,
           username: values.username,
           phone: values.phone,
-          role: "student",
+          role: "user",
           createdAt: new Date(),
           updatedAt: new Date(),
         });
 
         // Update local user state
-        setUser({
-          id: user.uid,
-          name: values.name || "",
-          email: values.email,
-          phone: values.phone || "",
-          emailverified: user.emailVerified,
-          isanonymous: user.isAnonymous,
-          role: "student",
-          profilePicture: "https://via.placeholder.com/150",
-        });
+        // setUser({
+        //   id: user.uid,
+        //   name: values.name || "",
+        //   email: values.email,
+        //   phone: values.phone || "",
+        //   emailverified: user.emailVerified,
+        //   isanonymous: user.isAnonymous,
+        //   role: "user",
+        //   profilePicture: "https://via.placeholder.com/150",
+        // });
 
         setIsSignUp(false);
       } else {
@@ -109,7 +109,9 @@ const AuthScreen = () => {
         // Update local user state
         setUser({
           id: user.uid,
-          name: user.displayName || "User",
+          name: user.email
+            ? user.email.split("@")[0]
+            : user?.displayName || "User",
           email: user.email || "",
           role: "User",
           phone: user.phoneNumber || "",

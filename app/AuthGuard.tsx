@@ -20,6 +20,7 @@ export default function AuthGuard() {
     const unsubscribe = onAuthStateChanged(auth, (authenticatedUser) => {
       if (authenticatedUser) {
         setInitialUserState({
+          id: authenticatedUser.uid,
           name: authenticatedUser.displayName || "User",
           email: authenticatedUser.email || "",
           phone: authenticatedUser.phoneNumber || "",
