@@ -72,6 +72,7 @@ export default function ChatScreen() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [waitingForAI, setWaitingForAI] = useState(false);
 
   const fetchConversation = useCallback(async () => {
     try {
@@ -128,6 +129,9 @@ export default function ChatScreen() {
 
     try {
       setSending(true);
+      setWaitingForAI(true);
+      setError(null);
+
       const response = await fetch(`http://localhost:8000/chat/${id}/message`, {
         method: "POST",
         headers: {
@@ -144,14 +148,61 @@ export default function ChatScreen() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to send message");
+        const errorData = await response.json();
+        throw new Error(
+          errorData.details || errorData.error || "Failed to send message"
+        );
       }
 
       setMessage("");
-      fetchConversation();
-    } catch (error) {
+      // Poll for new messages until we get an AI response
+      const pollInterval = setInterval(async () => {
+        try {
+          const updatedConversation = await fetch(
+            `http://localhost:8000/chat/${id}`
+          ).then((res) => res.json());
+
+          if (
+            !updatedConversation.messages ||
+            updatedConversation.messages.length === 0
+          ) {
+            return;
+          }
+
+          const lastMessage =
+            updatedConversation.messages[
+              updatedConversation.messages.length - 1
+            ];
+          if (lastMessage.sender === "ai") {
+            setConversation(updatedConversation);
+            setWaitingForAI(false);
+            clearInterval(pollInterval);
+          }
+        } catch (error: any) {
+          console.error("Error polling for messages:", error);
+          clearInterval(pollInterval);
+          setWaitingForAI(false);
+        }
+      }, 1000);
+
+      // Clear polling after 30 seconds if no response
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if (waitingForAI) {
+          setWaitingForAI(false);
+          setError(
+            "The AI is taking longer than expected to respond. Please try again."
+          );
+        }
+      }, 30000);
+    } catch (error: unknown) {
       console.error("Error sending message:", error);
-      setError("Failed to send message. Please try again.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to send message. Please try again."
+      );
+      setWaitingForAI(false);
     } finally {
       setSending(false);
     }
@@ -227,8 +278,15 @@ export default function ChatScreen() {
         renderItem={renderMessage}
         keyExtractor={(item) => item.message_id}
         contentContainerStyle={styles.messagesContainer}
-        inverted
+        onEndReached={() => {}}
+        onEndReachedThreshold={0.1}
       />
+
+      {waitingForAI && (
+        <View style={styles.aiTypingContainer}>
+          <Text style={styles.aiTypingText}>AI is typing...</Text>
+        </View>
+      )}
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -242,10 +300,11 @@ export default function ChatScreen() {
         <TouchableOpacity
           style={[
             styles.sendButton,
-            !message.trim() && styles.sendButtonDisabled,
+            (!message.trim() || sending || waitingForAI) &&
+              styles.sendButtonDisabled,
           ]}
           onPress={sendMessage}
-          disabled={!message.trim() || sending}>
+          disabled={!message.trim() || sending || waitingForAI}>
           {sending ? (
             <ActivityIndicator size="small" color={colors.textLight} />
           ) : (
@@ -318,6 +377,8 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     padding: 16,
+    flexGrow: 1,
+    justifyContent: "flex-end",
   },
   messageContainer: {
     marginBottom: 16,
@@ -382,5 +443,14 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: colors.textTertiary,
+  },
+  aiTypingContainer: {
+    padding: 10,
+    alignItems: "center",
+    backgroundColor: colors.surface,
+  },
+  aiTypingText: {
+    color: colors.textSecondary,
+    fontSize: 14,
   },
 });

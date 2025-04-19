@@ -6,10 +6,14 @@ import logging
 from bson import ObjectId
 from datetime import datetime
 import json
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Rasa configuration
+RASA_URL = "http://localhost:5005"  # Default Rasa server URL
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -22,6 +26,31 @@ class JSONEncoder(json.JSONEncoder):
 app = Flask(__name__)
 app.json_encoder = JSONEncoder
 CORS(app)
+
+def get_rasa_response(message, sender_id):
+    try:
+        logger.info(f"Sending message to Rasa: {message}")
+        response = requests.post(
+            f"{RASA_URL}/webhooks/rest/webhook",
+            json={
+                "sender": sender_id,
+                "message": message
+            },
+            timeout=10  # Add timeout to prevent hanging
+        )
+        logger.info(f"Rasa response status: {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Rasa response data: {data}")
+            return data
+        logger.error(f"Rasa returned non-200 status: {response.status_code}")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request error when calling Rasa: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error when calling Rasa: {str(e)}")
+        return None
 
 @app.route('/')
 def index():
@@ -122,21 +151,63 @@ def get_conversation(conversation_id):
 def add_message(conversation_id):
     try:
         data = request.json
+        logger.info(f"Received message data: {data}")
+        
         sender = data.get('sender')
         content = data.get('content')
         metadata = data.get('metadata')
         
         if not sender or not content:
+            logger.warning("Missing required fields in message")
             return jsonify({'error': 'Missing required fields'}), 400
             
+        # Add user message to conversation
+        logger.info(f"Adding user message to conversation {conversation_id}")
         success = add_message_to_conversation(conversation_id, sender, content, metadata)
         if not success:
+            logger.error(f"Failed to add message to conversation {conversation_id}")
             return jsonify({'error': 'Failed to add message'}), 500
+            
+        # Get Rasa response
+        logger.info(f"Getting Rasa response for message: {content}")
+        rasa_response = get_rasa_response(content, conversation_id)
+        
+        if rasa_response:
+            logger.info(f"Received Rasa response: {rasa_response}")
+            # Add Rasa's response to the conversation
+            for response in rasa_response:
+                if 'text' in response:
+                    success = add_message_to_conversation(
+                        conversation_id,
+                        "ai",
+                        response['text'],
+                        {
+                            "source": "rasa",
+                            "confidence": response.get('confidence', 1.0)
+                        }
+                    )
+                    if not success:
+                        logger.error(f"Failed to add Rasa response to conversation {conversation_id}")
+                        return jsonify({'error': 'Failed to add AI response'}), 500
+        else:
+            logger.warning("No response received from Rasa")
+            # Add a default response if Rasa fails
+            success = add_message_to_conversation(
+                conversation_id,
+                "ai",
+                "I'm having trouble processing your message. Please try again.",
+                {"source": "system", "error": "rasa_no_response"}
+            )
+            if not success:
+                logger.error(f"Failed to add default response to conversation {conversation_id}")
             
         return jsonify({'message': 'Message added successfully'})
     except Exception as e:
-        logger.error(f"Error adding message: {str(e)}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error in add_message: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': 'Internal server error',
+            'details': str(e)
+        }), 500
 
 @app.route('/chat', methods=['POST'])
 def create_conversation():
