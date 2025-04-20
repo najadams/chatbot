@@ -14,13 +14,13 @@ cd ..
 # Setup backend virtual environment and install dependencies
 echo "🐍 Setting up Python virtual environment..."
 cd backend
-python3 -m venv venv
+python -m venv venv
 
 # Activate virtual environment
-source venv/bin/activate
+.\venv\Scripts\activate
 
 echo "📦 Installing Python dependencies..."
-pip install --upgrade pip
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 # Deactivate virtual environment
