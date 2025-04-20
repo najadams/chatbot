@@ -1,0 +1,63 @@
+{
+  "type": "MaxHistoryTrackerFeaturizer",
+  "state_featurizer": {
+    "action_texts": [],
+    "entity_tag_specs": [],
+    "feature_states": {
+      "intent": {
+        "admission_info": 0,
+        "award_info": 1,
+        "back": 2,
+        "campus_info": 3,
+        "contact_info": 4,
+        "faculty_info": 5,
+        "faq": 6,
+        "goodbye": 7,
+        "greet": 8,
+        "nlu_fallback": 9,
+        "out_of_scope": 10,
+        "program_info": 11,
+        "restart": 12,
+        "session_start": 13,
+        "thankyou": 14
+      },
+      "action_name": {
+        "action_listen": 0,
+        "action_restart": 1,
+        "action_session_start": 2,
+        "action_default_fallback": 3,
+        "action_deactivate_loop": 4,
+        "action_revert_fallback_events": 5,
+        "action_default_ask_affirmation": 6,
+        "action_default_ask_rephrase": 7,
+        "action_two_stage_fallback": 8,
+        "action_unlikely_intent": 9,
+        "action_back": 10,
+        "...": 11,
+        "action_extract_slots": 12,
+        "utter_admission_info": 13,
+        "utter_award_info": 14,
+        "utter_campus_info": 15,
+        "utter_contact_info": 16,
+        "utter_faculty_info": 17,
+        "utter_faq": 18,
+        "utter_goodbye": 19,
+        "utter_greet": 20,
+        "utter_out_of_scope": 21,
+        "utter_program_info": 22,
+        "utter_thankyou": 23
+      },
+      "entities": {
+        "faculty_name": 0,
+        "program_name": 1
+      },
+      "slots": {
+        "program_name_0": 0,
+        "faculty_name_0": 1
+      },
+      "active_loop": {}
+    }
+  },
+  "remove_duplicates": true,
+  "max_history": 5
+}

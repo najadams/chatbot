@@ -1,165 +1,150 @@
 version: "3.1"
 
 nlu:
-- intent: greet
-  examples: |
-    - Hi
-    - Hello
-    - Hey there
-    - Good morning
-    - Good afternoon
-    - Good evening
-    - Greetings
-    - What's up?
-    - Howdy
+  - intent: greet
+    examples: |
+      - hey
+      - hello
+      - hi
+      - good morning
+      - good evening
+      - hey there
+      - hi there
+      - greetings
+      - hello bot
+      - hi bot
 
-- intent: goodbye
-  examples: |
-    - Bye
-    - Goodbye
-    - See you later
-    - Have a nice day
-    - Take care
-    - Bye for now
-    - Catch you later
-    - I'm leaving
+  - intent: goodbye
+    examples: |
+      - bye
+      - goodbye
+      - see you later
+      - take care
+      - bye bye
+      - see you
+      - farewell
+      - good night
+      - catch you later
 
-- intent: affirm
-  examples: |
-    - Yes
-    - Yeah
-    - Sure
-    - Absolutely
-    - Correct
-    - That's right
-    - Of course
-    - Definitely
-    - I agree
+  - intent: thankyou
+    examples: |
+      - thanks
+      - thank you
+      - appreciated
+      - thanks a lot
+      - thank you very much
+      - much appreciated
+      - thanks for your help
+      - I appreciate it
 
-- intent: deny
-  examples: |
-    - No
-    - Nope
-    - Not really
-    - I don't think so
-    - Negative
-    - Never
-    - Not interested
-    - No thanks
+  - intent: faq
+    examples: |
+      - what can you do?
+      - what are you capable of?
+      - tell me about KNUST
+      - what is KNUST?
+      - what is Kwame Nkrumah University of Science and Technology?
+      - tell me about the university
+      - what can you tell me about KNUST?
+      - what information do you have about KNUST?
 
-- intent: thanks
-  examples: |
-    - Thanks
-    - Thank you
-    - Appreciate it
-    - Thanks a lot
-    - Thank you so much
-    - Grateful
-    - Cheers
+  - intent: program_info
+    examples: |
+      - what programs does KNUST offer?
+      - list of courses at KNUST
+      - does KNUST have engineering programs?
+      - what is BSc Computer Science at KNUST?
+      - what engineering courses are available?
+      - tell me about the computer science program
+      - what are the requirements for medicine?
+      - what business programs are offered?
+      - list of undergraduate programs
+      - what postgraduate programs are available?
+      - what are the popular courses?
+      - what programs are in the engineering faculty?
+      - what science programs are offered?
+      - what arts programs are available?
 
-- intent: ask_admission
-  examples: |
-    - How do I apply for admission?
-    - What are the admission requirements?
-    - How can I get into this university?
-    - What documents are needed for admission?
-    - Is there an entrance exam?
-    - How to enroll in a course?
-    - What's the admission process?
-    - Can international students apply?
+  - intent: faculty_info
+    examples: |
+      - who are the professors at KNUST?
+      - can I find contact information for faculty?
+      - list of faculty in Computer Science department
+      - who are the lecturers in engineering?
+      - who are the professors in medicine?
+      - how can I contact a lecturer?
+      - who are the faculty members?
+      - who teaches computer science?
+      - who are the professors in the business school?
+      - who are the faculty in the science department?
 
-- intent: ask_courses
-  examples: |
-    - What courses do you offer?
-    - List of undergraduate programs
-    - Available master's degrees
-    - PhD programs
-    - Diploma courses
-    - Short-term certifications
-    - Online courses
-    - Engineering programs
-    - Business degrees
+  - intent: admission_info
+    examples: |
+      - how to apply to KNUST?
+      - what are the admission requirements?
+      - when is the application deadline?
+      - how do I get into KNUST?
+      - what grades do I need?
+      - what are the entry requirements?
+      - when can I apply?
+      - how much is the application fee?
+      - what documents do I need?
+      - how do I submit my application?
+      - what are the cut off points?
+      - what are the WASSCE requirements?
+      - how do I check my admission status?
+      - when do admissions start?
 
-- intent: ask_fees
-  examples: |
-    - What's the tuition fee?
-    - How much does a semester cost?
-    - Fee structure for MBA
-    - Are there scholarships?
-    - Payment options
-    - Is there a discount for early payment?
-    - International student fees
-    - Additional charges
+  - intent: contact_info
+    examples: |
+      - how can I contact KNUST?
+      - what is the phone number for KNUST?
+      - where is KNUST located?
+      - what is the address of KNUST?
+      - how do I get to KNUST?
+      - what is the email address?
+      - how can I reach the admissions office?
+      - what is the main phone number?
+      - where is the main campus?
+      - how do I contact the registrar?
 
-- intent: ask_deadlines
-  examples: |
-    - When is the application deadline?
-    - Last date to apply
-    - Admission closing date
-    - Deadline for scholarships
-    - When do classes start?
-    - Semester start date
-    - Late submission policy
+  - intent: campus_info
+    examples: |
+      - tell me about KNUST campus
+      - what facilities does KNUST have?
+      - is there a library at KNUST?
+      - what are the campus facilities?
+      - where are the lecture halls?
+      - is there wifi on campus?
+      - what sports facilities are available?
+      - where are the hostels located?
+      - what are the campus security measures?
+      - are there restaurants on campus?
+      - what are the library hours?
+      - where are the computer labs?
+      - what are the campus rules?
 
-- intent: ask_contact
-  examples: |
-    - How can I contact the university?
-    - Email address
-    - Phone number
-    - Office location
-    - Where is the campus?
-    - Admission office contact
-    - Live chat support
-    - Mailing address
+  - intent: award_info
+    examples: |
+      - has KNUST won any awards?
+      - what are KNUST's achievements?
+      - is KNUST ranked highly?
+      - what awards has KNUST received?
+      - what is KNUST's ranking?
+      - what are KNUST's notable achievements?
+      - has KNUST received any international recognition?
+      - what are KNUST's academic achievements?
+      - what research awards has KNUST won?
 
-- intent: ask_scholarships
-  examples: |
-    - Do you offer scholarships?
-    - How to apply for financial aid?
-    - Merit-based scholarships
-    - Need-based grants
-    - International student funding
-    - Full-ride scholarships
-    - Scholarship deadlines
-    - Eligibility criteria
-
-- intent: ask_faculty
-  examples: |
-    - Who are the professors?
-    - Faculty list
-    - Department heads
-    - Research supervisors
-    - Best teachers in [subject]
-    - Faculty qualifications
-    - Visiting professors
-
-- intent: ask_accommodation
-  examples: |
-    - Is hostel available?
-    - On-campus housing
-    - Dormitory fees
-    - Off-campus housing options
-    - How to book a room?
-    - Student apartments
-    - Accommodation for international students
-
-- intent: ask_placements
-  examples: |
-    - What's the placement rate?
-    - Top recruiters
-    - Average salary offered
-    - Internship opportunities
-    - Career support services
-    - Job fairs
-    - Alumni network
-
-- intent: emergency_help
-  examples: |
-    - I need urgent help
-    - Emergency contact
-    - Who to call in crisis?
-    - Report an issue
-    - Security office
-    - Medical emergency
-    - Harassment complaint
-    - IT support down
+  - intent: out_of_scope
+    examples: |
+      - tell me a joke
+      - what's the weather like?
+      - who is the president of Ghana?
+      - what time is it?
+      - how old are you?
+      - what's your name?
+      - do you like music?
+      - can you sing?
+      - what's your favorite color?
+      - are you human?

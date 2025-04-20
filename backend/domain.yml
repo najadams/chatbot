@@ -1,47 +1,72 @@
 version: "3.1"
-
 intents:
   - greet
   - goodbye
-  - affirm
-  - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
-  - emergency_help
-  - ask_placements
-  - ask_accommodation
-  - ask_faculty
-  - ask_scholarships
-  - ask_contact
-  - ask_deadlines
-  - ask_fees
-  - ask_courses
-  - ask_admission
-  - thanks
+  - thankyou
+  - faq
+  - program_info
+  - faculty_info
+  - admission_info
+  - contact_info
+  - campus_info
+  - award_info
+  - out_of_scope
+
+entities:
+  - program_name
+  - faculty_name
+
+slots:
+  program_name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: program_name
+  faculty_name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: faculty_name
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
-
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
-
+    - text: "Hello! I'm the KNUST Assistant. How can I help you today?"
+    - text: "Hi there! I'm here to provide information about KNUST. What would you like to know?"
+    - text: "Welcome! I can help you with information about Kwame Nkrumah University of Science and Technology. What would you like to know?"
   utter_goodbye:
-  - text: "Bye"
-
-  utter_iamabot:
-  - text: "I am a bot, powered by Ibrahim."
-   
+    - text: "Goodbye! Have a great day!"
+    - text: "See you later! Feel free to ask if you need more information about KNUST."
+    - text: "Take care! Come back if you have more questions about KNUST."
+  utter_thankyou:
+    - text: "You're welcome! Is there anything else you'd like to know about KNUST?"
+    - text: "Glad I could help! Feel free to ask more questions about KNUST."
+    - text: "Happy to assist! Let me know if you need more information about KNUST."
+  utter_faq:
+    - text: "KNUST (Kwame Nkrumah University of Science and Technology) is Ghana's premier university of science and technology. It was established in 1952 and is located in Kumasi. KNUST is known for its excellence in science, technology, engineering, and mathematics education. The university has several faculties including Engineering, Science, Agriculture, and Business."
+    - text: "KNUST is a leading university in Ghana, specializing in science and technology education. It offers undergraduate and postgraduate programs across various disciplines. The university is known for its research excellence and state-of-the-art facilities."
+  utter_program_info:
+    - text: "KNUST offers a wide range of programs across various faculties. The main faculties include: Engineering (Civil, Mechanical, Electrical, Computer, etc.), Science (Computer Science, Mathematics, Physics, Chemistry), Agriculture, Business, and more. Each program has specific entry requirements and duration. Would you like to know about a specific program?"
+    - text: "KNUST provides numerous undergraduate and postgraduate programs. Popular programs include BSc Computer Science, BSc Engineering (various specializations), BSc Medicine, BSc Agriculture, and Business Administration. The university also offers PhD programs in many fields. What specific program interests you?"
+  utter_faculty_info:
+    - text: "KNUST has a distinguished faculty across all departments. The university employs highly qualified professors, lecturers, and researchers. You can find faculty contact information on the KNUST website or by visiting the specific department offices. Would you like information about faculty in a particular department?"
+    - text: "Each department at KNUST has its own faculty members. You can find detailed information about faculty members, including their research interests and contact details, on the KNUST website under the respective department pages."
   utter_admission_info:
-    - text: "Our admission process requires: 1) Filled application form, 2) Academic transcripts, 3) Entrance exam (if applicable). Would you like details for a specific program?"
+    - text: "To apply to KNUST, you need to meet the following requirements: WASSCE/SSSCE with credits in core subjects and relevant electives, or equivalent qualifications. Applications are typically open from January to July each year. The application process is done online through the KNUST admissions portal. Would you like more specific information about the application process?"
+    - text: "Admission to KNUST requires good grades in WASSCE/SSSCE, particularly in core subjects like Mathematics, English, and Science. The application process involves submitting your academic results, completing an online application form, and paying the application fee. The cut-off points vary by program."
+  utter_contact_info:
+    - text: "You can contact KNUST through the following channels:\nMain Phone: +233 (0) 3220 60021\nEmail: info@knust.edu.gh\nAddress: University Post Office, Kumasi, Ghana\nWebsite: www.knust.edu.gh\nWould you like contact information for a specific department?"
+    - text: "KNUST's main campus is located in Kumasi, Ghana. The university can be reached via phone, email, or through their website. The admissions office has specific contact details for prospective students. Would you like the contact information for a particular office?"
+  utter_campus_info:
+    - text: "KNUST's main campus in Kumasi features modern facilities including:\n- State-of-the-art lecture halls\n- Well-equipped laboratories\n- A central library with extensive resources\n- Sports facilities\n- Student hostels\n- Restaurants and cafeterias\n- Computer labs with internet access\n- Security services\nWould you like more details about any specific facility?"
+    - text: "The KNUST campus is well-equipped with modern facilities to support teaching, learning, and research. The university provides accommodation, dining facilities, sports complexes, and excellent security measures. The campus is also Wi-Fi enabled in most areas."
+  utter_award_info:
+    - text: "KNUST has received numerous awards and recognitions, including:\n- Ranked among the top universities in Africa\n- Recognized for research excellence\n- Awards for innovation and technology\n- Accreditations from various professional bodies\n- International partnerships and collaborations\nWould you like to know more about specific achievements?"
+    - text: "KNUST has been consistently ranked as one of the top universities in Ghana and Africa. The university has received international recognition for its research output and academic excellence. Many of its programs are accredited by international professional bodies."
+  utter_out_of_scope:
+    - text: "I'm sorry, I can only provide information about KNUST. Please ask me questions about the university, its programs, admissions, or campus life."
+    - text: "I'm designed to help with KNUST-related information. Could you please ask me something about the university instead?"
 
 session_config:
   session_expiration_time: 60
