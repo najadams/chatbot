@@ -8,39 +8,47 @@ import { Slot } from "expo-router";
 import Page from ".";
 import { UserStateType } from "@/constants/types";
 
-// Define the user type
-
 export default function AuthGuard() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const router = useRouter();
-  const [initialUserState, setInitialUserState] =
-    useState<UserContextType>(null);
+  const [initialUserState, setInitialUserState] = useState<UserContextType>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authenticatedUser) => {
       if (authenticatedUser) {
-        setInitialUserState({
+        // First set the user state
+        const userState = {
           id: authenticatedUser.uid,
           name: authenticatedUser.displayName || "User",
           email: authenticatedUser.email || "",
           phone: authenticatedUser.phoneNumber || "",
           emailverified: authenticatedUser.emailVerified || false,
           isanonymous: authenticatedUser.isAnonymous || false,
-          role: "User", // Replace with actual role from Firestore
+          role: "User",
           profilePicture:
             authenticatedUser.photoURL || "https://via.placeholder.com/150",
-        });
-
+        };
+        
+        setInitialUserState(userState);
         setCheckingAuth(false);
-        router.replace("/(main)/(tabs)/home");
       } else {
+        setInitialUserState(null);
         setCheckingAuth(false);
-        router.replace("/(auth)/auth");
       }
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!checkingAuth) {
+      if (initialUserState) {
+        router.replace("/(main)/(tabs)/home");
+      } else {
+        router.replace("/(auth)/auth");
+      }
+    }
+  }, [checkingAuth, initialUserState]);
 
   if (checkingAuth) {
     return (
@@ -53,7 +61,6 @@ export default function AuthGuard() {
   return (
     <UserProvider initialUser={initialUserState}>
       <Slot />
-      {/* <Page onUserUpdated={onUserUpdated} /> */}
     </UserProvider>
   );
 }
