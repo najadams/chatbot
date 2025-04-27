@@ -78,7 +78,6 @@ export default function RecentsScreen() {
       try {
         setError(null);
         if (!user?.id) {
-          console.log("No user ID available");
           setRecentChats([]);
           setLoading(false);
           return;
@@ -93,7 +92,6 @@ export default function RecentsScreen() {
         }
 
         const data = await response.json();
-        console.log("Received chats:", data);
 
         if (!data.conversations) {
           throw new Error("No conversations data in response");
@@ -112,7 +110,6 @@ export default function RecentsScreen() {
         );
         setPagination(paginationData);
       } catch (error) {
-        console.error("Error fetching recent chats:", error);
         setError("Failed to load conversations. Please try again.");
         Alert.alert(
           "Error",

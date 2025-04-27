@@ -120,7 +120,6 @@ export default function ChatScreen() {
   }, [id, user]);
 
   useEffect(() => {
-    console.log(id, "id in the id.tsx file");
     fetchConversation();
   }, [fetchConversation]);
 
