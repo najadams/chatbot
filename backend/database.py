@@ -39,7 +39,7 @@ def store_conversation(user_id: str, username: str, display_name: str, message: 
                 },
                 "ai": {
                     "ai_id": "grok-3",
-                    "name": "Grok",
+                    "name": "Chatbot",
                     "version": "3.0"
                 }
             },

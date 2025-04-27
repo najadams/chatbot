@@ -92,6 +92,16 @@ export default function HomeScreen() {
       description: "Advanced Equipment",
       icon: "flask" as keyof typeof Ionicons.glyphMap,
     },
+    {
+      name: "Stadium",
+      description: "Advanced Equipment",
+      icon: "football" as keyof typeof Ionicons.glyphMap,
+    },
+    {
+      name: "Pool",
+      description: "Advanced Equipment",
+      icon: "water" as keyof typeof Ionicons.glyphMap,
+    },
   ];
 
   const QuickAction = ({ icon, title, onPress }: QuickActionProps) => (
@@ -125,7 +135,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.welcomeText}>Welcome to University</Text>
+          <Text style={styles.welcomeText}>Welcome to KNUST</Text>
           <Text style={styles.subText}>Excellence in Education</Text>
         </View>
 
@@ -133,17 +143,17 @@ export default function HomeScreen() {
           <QuickAction
             icon="school-outline"
             title="Programs"
-            onPress={() => router.push("/(main)/tutor/1")}
+            onPress={() => router.push("/(main)/programs")}
           />
           <QuickAction
             icon="people-outline"
             title="Faculty"
-            onPress={() => router.push("/(main)/profile")}
+            onPress={() => router.push("/(main)/faculty")}
           />
           <QuickAction
             icon="calendar-outline"
             title="Events"
-            onPress={() => router.push("/(main)/add-schedule")}
+            onPress={() => router.push("/(main)/upcoming-events")}
           />
         </View>
 
@@ -157,7 +167,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Featured Professors</Text>
+          <Text style={styles.sectionTitle}>Featured Lecuterers</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
